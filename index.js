@@ -30,3 +30,30 @@ app.get("/api/hello", function (req, res) {
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+
+app.get('/api/', function(req, res, next) {
+  date = new Date()
+  next();
+}, function(req, res) {
+  res.json({unix: date.getTime(), utc: date.toUTCString()});
+});
+
+app.get('/api/:date', function(req, res) {
+
+ //Handling data parameters with invalid format
+  if(!Date.parse(req.params.date) && !Number(req.params.date))
+  { 
+    res.json({ error : "Invalid Date" })
+  }
+
+  //Checking for conditions when date parameter is given in microseconds.
+  else if(!(/[-]/.test(req.params.date)) && Number(req.params.date))
+  {
+    let date = new Date(Number(req.params.date))
+    res.json({unix: date.getTime(), utc: date.toUTCString()});
+  }
+
+  //For handling regular test cases when date parameter is in a valid date format.
+  let date = new Date(req.params.date);
+  res.json({unix: date.getTime(), utc: date.toUTCString()});
+});
